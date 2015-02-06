@@ -44,6 +44,8 @@ public class DomDistiller {
         }
 
         String original_url = options.hasOriginalUrl() ? options.getOriginalUrl() : Window.Location.getHref();
+        original_url = PagingLinksFinder.getBaseUrlForRelative(Document.get().getDocumentElement(), original_url);
+
         TimingInfo timingInfo = contentExtractor.getTimingInfo();
         double stPaging = DomUtil.getTime();
         result.setPaginationInfo(PagingLinksFinder.getPaginationInfo(original_url));

@@ -330,6 +330,14 @@ public class PagingLinksFinder {
         return pagingHref;
     }
 
+    public static String getBaseUrlForRelative(Element root, String original_url) {
+        NodeList<Element> bases = root.getElementsByTagName("BASE");
+        if (bases.getLength() != 1) {
+            return original_url;
+        }
+        return BaseElement.as(bases.getItem(0)).getHref();
+    }
+
     public static AnchorElement createAnchorWithBase(String base_url) {
         Document doc = DomUtil.createHTMLDocument(Document.get());
 

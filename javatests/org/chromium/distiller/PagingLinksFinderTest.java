@@ -5,6 +5,8 @@
 package org.chromium.distiller;
 
 import com.google.gwt.dom.client.AnchorElement;
+import com.google.gwt.dom.client.BaseElement;
+import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.user.client.Window;
 
@@ -276,6 +278,30 @@ public class PagingLinksFinderTest extends DomDistillerJsTestCase {
                 TestUtil.formHrefWithWindowLocationPath("gap/12/somestuff"), "page down");
         root.appendChild(anchor);
         assertNull(PagingLinksFinder.findNext(root, EXAMPLE_URL));
-        //checkLinks(anchor.getHref(), "", root);
+    }
+
+    public void testNoBase() {
+        Element doc = Document.get().getDocumentElement();
+        String base = PagingLinksFinder.getBaseUrlForRelative(doc, EXAMPLE_URL);
+        assertEquals(base, EXAMPLE_URL);
+    }
+
+    public void testBaseUrlForRelative() {
+        BaseElement base = Document.get().createBaseElement();
+        mHead.appendChild(base);
+
+        Element doc = Document.get().getDocumentElement();
+        String[] baseUrls = {
+                "http://example.com/", // The trailing slash for root is required.
+                "http://example.com/path/toward",
+                "http://example.com/trailingslash/",
+        };
+
+        for (String baseUrl: baseUrls) {
+            base.setHref(baseUrl);
+            assertEquals(baseUrl, PagingLinksFinder.getBaseUrlForRelative(doc, EXAMPLE_URL));
+        }
+
+        mHead.removeChild(base);
     }
 }
