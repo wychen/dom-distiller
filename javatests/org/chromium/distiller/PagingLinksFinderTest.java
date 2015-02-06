@@ -292,14 +292,27 @@ public class PagingLinksFinderTest extends DomDistillerJsTestCase {
 
         Element doc = Document.get().getDocumentElement();
         String[] baseUrls = {
-                "http://example.com/", // The trailing slash for root is required.
-                "http://example.com/path/toward",
+                "http://example.com",
+                "https://example.com/no/trailing/slash.php",
                 "http://example.com/trailingslash/",
+                "/another/path/index.html",
+                "section/page2.html",
+                "//testing.com/",
         };
 
-        for (String baseUrl: baseUrls) {
+        String[] expected = {
+                "http://example.com/", // Note the trailing slash.
+                "https://example.com/no/trailing/slash.php",
+                "http://example.com/trailingslash/",
+                "http://example.com/another/path/index.html",
+                "http://example.com/path/toward/section/page2.html",
+                "http://testing.com/",
+        };
+
+        for (int i = 0; i < baseUrls.length; i++) {//String baseUrl: baseUrls) {
+            String baseUrl = baseUrls[i];
             base.setHref(baseUrl);
-            assertEquals(baseUrl, PagingLinksFinder.getBaseUrlForRelative(doc, EXAMPLE_URL));
+            assertEquals(expected[i], PagingLinksFinder.getBaseUrlForRelative(doc, EXAMPLE_URL));
         }
 
         mHead.removeChild(base);

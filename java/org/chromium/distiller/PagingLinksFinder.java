@@ -332,10 +332,15 @@ public class PagingLinksFinder {
 
     public static String getBaseUrlForRelative(Element root, String original_url) {
         NodeList<Element> bases = root.getElementsByTagName("BASE");
-        if (bases.getLength() != 1) {
+        if (bases.getLength() == 0) {
             return original_url;
         }
-        return BaseElement.as(bases.getItem(0)).getHref();
+        // Note that base.href can also be relative.
+        // If multiple <base> elements are specified, only the first href and
+        // first target value are used; all others are ignored.
+        // Reference: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
+        AnchorElement baseAnchor = createAnchorWithBase(original_url);
+        return resolveLinkHref(BaseElement.as(bases.getItem(0)).getAttribute("href"), baseAnchor);
     }
 
     public static AnchorElement createAnchorWithBase(String base_url) {
@@ -359,6 +364,10 @@ public class PagingLinksFinder {
     // The link is resolved using an anchor within a new HTML document with a base tag.
     public static String resolveLinkHref(AnchorElement link, AnchorElement baseAnchor) {
         String linkHref = link.getAttribute("href");
+        return resolveLinkHref(linkHref, baseAnchor);
+    }
+
+    public static String resolveLinkHref(String linkHref, AnchorElement baseAnchor) {
         baseAnchor.setAttribute("href", linkHref);
         return baseAnchor.getHref();
     }
