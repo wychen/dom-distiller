@@ -127,6 +127,14 @@ public class PagingLinksFinder {
                 continue;
             }
 
+            if (pageLink == PageLink.NEXT) {
+                String linkHrefRemaining = linkHref.substring(allowedPrefix.length());
+                if (!StringUtil.match(linkHrefRemaining, "\\d")) {
+                    appendDbgStrForLink(link, "ignored: no number");
+                    continue;
+                }
+            }
+
             int width = link.getOffsetWidth();
             int height = link.getOffsetHeight();
             if (width == 0 || height == 0) {
