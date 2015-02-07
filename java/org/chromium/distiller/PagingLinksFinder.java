@@ -65,6 +65,7 @@ public class PagingLinksFinder {
             RegExp.compile("((_|-)?p[a-z]*|(_|-))[0-9]{1,2}$", "gi");
 
     private static final RegExp REG_HREF_CLEANER = RegExp.compile("/?(#.*)?$");
+    private static final RegExp REG_NUMBER = RegExp.compile("\\d");
 
     public static DomDistillerProtos.PaginationInfo getPaginationInfo(String original_url) {
         DomDistillerProtos.PaginationInfo info = DomDistillerProtos.PaginationInfo.create();
@@ -129,7 +130,7 @@ public class PagingLinksFinder {
 
             if (pageLink == PageLink.NEXT) {
                 String linkHrefRemaining = linkHref.substring(allowedPrefix.length());
-                if (!StringUtil.match(linkHrefRemaining, "\\d")) {
+                if (!REG_NUMBER.test(linkHrefRemaining)) {
                     appendDbgStrForLink(link, "ignored: no number");
                     continue;
                 }
