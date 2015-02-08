@@ -290,6 +290,10 @@ public class PagingLinksFinderTest extends DomDistillerJsTestCase {
         BaseElement base = Document.get().createBaseElement();
         mHead.appendChild(base);
 
+        BaseElement bogusBase = Document.get().createBaseElement();
+        bogusBase.setHref("https://itsatrap.com/");
+        mHead.appendChild(bogusBase);
+
         Element doc = Document.get().getDocumentElement();
         String[] baseUrls = {
                 "http://example.com",
@@ -316,5 +320,6 @@ public class PagingLinksFinderTest extends DomDistillerJsTestCase {
         }
 
         mHead.removeChild(base);
+        mHead.removeChild(bogusBase);
     }
 }
