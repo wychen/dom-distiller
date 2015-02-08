@@ -65,7 +65,6 @@ public class PagingLinksFinder {
             RegExp.compile("((_|-)?p[a-z]*|(_|-))[0-9]{1,2}$", "gi");
 
     private static final RegExp REG_HREF_CLEANER = RegExp.compile("/?(#.*)?$");
-    private static final RegExp REG_NUMBER = RegExp.compile("\\d");
 
     public static DomDistillerProtos.PaginationInfo getPaginationInfo(String original_url) {
         DomDistillerProtos.PaginationInfo info = DomDistillerProtos.PaginationInfo.create();
@@ -110,6 +109,7 @@ public class PagingLinksFinder {
         // The trailing "/" is essential to ensure the whole hostname is matched, and not just the
         // prefix of the hostname. It also maintains the requirement of having a "path" in the URL.
         String allowedPrefix = getScheme(original_url) + "://" + getHostname(original_url) + "/";
+        RegExp REG_PREFIX_NUM = RegExp.compile("^" + StringUtil.regexEscape(allowedPrefix) + ".*\\d", "i");
 
         // Loop through all links, looking for hints that they may be next- or previous- page links.
         // Things like having "page" in their textContent, className or id, or being a child of a
@@ -123,15 +123,14 @@ public class PagingLinksFinder {
             // worry about relative links.
             String linkHref = resolveLinkHref(link, baseAnchor);
 
-            if (!linkHref.substring(0, allowedPrefix.length()).equalsIgnoreCase(allowedPrefix)) {
-                appendDbgStrForLink(link, "ignored: prefix");
-                continue;
-            }
-
             if (pageLink == PageLink.NEXT) {
-                String linkHrefRemaining = linkHref.substring(allowedPrefix.length());
-                if (!REG_NUMBER.test(linkHrefRemaining)) {
-                    appendDbgStrForLink(link, "ignored: no number");
+                if (!REG_PREFIX_NUM.test(linkHref)) {
+                    appendDbgStrForLink(link, "ignored: not prefix + num");
+                    continue;
+                }
+            } else if (pageLink == PageLink.PREV) {
+                if (!linkHref.substring(0, allowedPrefix.length()).equalsIgnoreCase(allowedPrefix)) {
+                    appendDbgStrForLink(link, "ignored: prefix");
                     continue;
                 }
             }
