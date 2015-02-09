@@ -98,6 +98,9 @@ public class PagingLinksFinder {
         }
 
         String baseUrl = findBaseUrl(original_url);
+
+        original_url = PagingLinksFinder.getBaseUrlForRelative(root, original_url);
+
         // Remove trailing '/' from window location href, because it'll be used to compare with
         // other href's whose trailing '/' are also removed.
         String wndLocationHref = StringUtil.findAndReplace(original_url, "\\/$", "");
