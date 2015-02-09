@@ -100,7 +100,7 @@ public class PagingLinksFinder {
             mLinkDebugInfo.clear();
         }
 
-        String baseUrl = findBaseUrl(original_url);
+        String baseUrl = StringUtil.findAndReplace(original_url, "\\/[^/]*$", "");
 
         original_url = PagingLinksFinder.getBaseUrlForRelative(root, original_url);
 
@@ -407,84 +407,6 @@ public class PagingLinksFinder {
         url = StringUtil.split(url, ":\\/\\/")[1];
         if (!url.contains("/")) return "";
         return StringUtil.findAndReplace(url, "^([^/]*)/", "");
-    }
-
-    private static String findBaseUrl(String original_url) {
-        // This extracts relevant parts from the window location's path based on various heuristics
-        // to determine the path of the base URL of the document.  This path is then appended to the
-        // window location protocol and host to form the base URL of the document.  This base URL is
-        // then used as reference for comparison against an anchor's href to to determine if the
-        // anchor is a next or previous paging link.
-
-        // First, from the window's location's path, extract the segments delimited by '/'.  Then,
-        // because the later segments probably contain less relevant information for the base URL,
-        // reverse the segments for easier processing.
-        // Note: '?' is a special character in RegEx, so enclose it within [] to specify the actual
-        // character.
-        String url = StringUtil.findAndReplace(original_url, "\\?.*$", "");
-        String noUrlParams = StringUtil.split(url, ":\\/\\/")[1];
-        String[] urlSlashes = StringUtil.split(noUrlParams, "/");
-        Collections.reverse(Arrays.asList(urlSlashes));
-
-        // Now, process each segment by extracting relevant information based on various heuristics.
-        List<String> cleanedSegments = new ArrayList<String>();
-        for (int i = 0; i < urlSlashes.length - 1; i++) {
-            String segment = urlSlashes[i];
-
-            // Split off and save anything that looks like a file type.
-            if (segment.indexOf(".") != -1) {
-                // Because '.' is a special character in RegEx, enclose it within [] to specify the
-                // actual character.
-                String possibleType = StringUtil.split(segment, "[.]")[1];
-
-                // If the type isn't alpha-only, it's probably not actually a file extension.
-                if (!StringUtil.match(possibleType, "[^a-zA-Z]")) {
-                    segment = StringUtil.split(segment, "[.]")[0];
-                }
-            }
-
-            // EW-CMS specific segment replacement. Ugly.
-            // Example: http://www.ew.com/ew/article/0,,20313460_20369436,00.html.
-            segment = StringUtil.findAndReplace(segment, ",00", "");
-
-            // If the first or second segment has anything looking like a page number, remove it.
-            if (i < 2) {
-                segment = REG_PAGE_NUMBER.replace(segment, "");
-            }
-
-            // Ignore an empty segment.
-            if (segment.isEmpty()) continue;
-
-            // If this is purely a number in the first or second segment, it's probably a page
-            // number, ignore it.
-            if (i < 2 && StringUtil.match(segment, "^\\d{1,2}$")) continue;
-
-            // If this is the first segment and it's just "index", ignore it.
-            if (i == 0 && segment.equalsIgnoreCase("index")) continue;
-
-            // If the first or second segment is shorter than 3 characters, and the first
-            // segment was purely alphas, ignore it.
-            if (i < 2 && segment.length() < 3 && !StringUtil.match(urlSlashes[0], "[a-z]")) {
-                continue;
-            }
-
-            // If we got here, append the segment to cleanedSegments.
-            cleanedSegments.add(segment);
-        }  // for all urlSlashes
-
-        return StringUtil.split(url, ":\\/\\/")[0] + "://" + urlSlashes[urlSlashes.length-1] + "/" +
-                reverseJoin(cleanedSegments, "/");
-    }
-
-    private static String reverseJoin(List<String> array, String delim) {
-        // As per http://stackoverflow.com/questions/5748044/gwt-string-concatenation-operator-vs-stringbuffer,
-        // + operator is faster for javascript than StringBuffer/StringBuilder.
-        String joined = "";
-        for (int i = array.size() - 1; i >= 0; i--) {
-            joined += array.get(i);
-            if (i > 0) joined += delim;
-        }
-        return joined;
     }
 
     private static Integer pageDiff(String url, String linkHref, AnchorElement link, int skip) {

@@ -60,14 +60,6 @@ public class PagingLinksFinderTest extends DomDistillerJsTestCase {
         }
     }
 
-    private static String formHrefMockedUrl(String strToAppend) {
-        String url = StringUtil.findAndReplace(EXAMPLE_URL, "^.*/", "");
-        if (strToAppend != "") {
-            url = url + "/" + strToAppend;
-        }
-        return url;
-    }
-
     public void testNoLink() {
         Element root = TestUtil.createDiv(0);
         mBody.appendChild(root);
@@ -111,28 +103,11 @@ public class PagingLinksFinderTest extends DomDistillerJsTestCase {
         checkLinks(anchor, null, root, "http://testing.com");
     }
 
-    public void testCaseSensitive() {
-        Element root = TestUtil.createDiv(0);
-        mBody.appendChild(root);
-        // Prepend href with window location path so that base URL is part of final href to increase
-        // score.
-        AnchorElement anchor = TestUtil.createAnchor(
-                formHrefMockedUrl("page2").toUpperCase(), "page 2");
-        root.appendChild(anchor);
-
-        // This would have been checkLinks(anchor, anchor, root), but the URL is converted to upper
-        // case, and no longer matches base URL.
-        // See test1PageNumberedLink() for reference.
-        checkLinks(null, null, root);
-    }
-
     public void test1PageNumberedLink() {
         Element root = TestUtil.createDiv(0);
         mBody.appendChild(root);
-        // Prepend href with window location path so that base URL is part of final href to increase
-        // score.
-        AnchorElement anchor = TestUtil.createAnchor(
-                formHrefMockedUrl("page2"), "page 2");
+
+        AnchorElement anchor = TestUtil.createAnchor("page2", "page 2");
         root.appendChild(anchor);
 
         // The word "page" in the link text increases its score confidently enough to be considered
@@ -143,14 +118,9 @@ public class PagingLinksFinderTest extends DomDistillerJsTestCase {
     public void test3NumberedLinks() {
         Element root = TestUtil.createDiv(0);
         mBody.appendChild(root);
-        // Prepend href with window location path so that base URL is part of final href to increase
-        // score.
-        AnchorElement anchor1 = TestUtil.createAnchor(
-                formHrefMockedUrl("page1"), "1");
-        AnchorElement anchor2 = TestUtil.createAnchor(
-                formHrefMockedUrl("page2"), "2");
-        AnchorElement anchor3 = TestUtil.createAnchor(
-                formHrefMockedUrl("page3"), "3");
+        AnchorElement anchor1 = TestUtil.createAnchor("page1", "1");
+        AnchorElement anchor2 = TestUtil.createAnchor("page2", "2");
+        AnchorElement anchor3 = TestUtil.createAnchor("page3", "3");
         root.appendChild(anchor1);
         root.appendChild(anchor2);
         root.appendChild(anchor3);
@@ -163,12 +133,8 @@ public class PagingLinksFinderTest extends DomDistillerJsTestCase {
     public void test2NextLinksWithSameHref() {
         Element root = TestUtil.createDiv(0);
         mBody.appendChild(root);
-        // Prepend href with window location path so that base URL is part of final href to increase
-        // score.
-        AnchorElement anchor1 = TestUtil.createAnchor(
-                formHrefMockedUrl("page2"), "dummy link");
-        AnchorElement anchor2 = TestUtil.createAnchor(
-                formHrefMockedUrl("page2"), "next page");
+        AnchorElement anchor1 = TestUtil.createAnchor("page2", "dummy link");
+        AnchorElement anchor2 = TestUtil.createAnchor("page2", "next page");
         root.appendChild(anchor1);
         root.appendChild(anchor2);
 
@@ -183,10 +149,7 @@ public class PagingLinksFinderTest extends DomDistillerJsTestCase {
         Element div = TestUtil.createDiv(1);
         div.setClassName("page");
         root.appendChild(div);
-        // Prepend href with window location path so that base URL is part of final href to increase
-        // score.
-        AnchorElement anchor = TestUtil.createAnchor(
-                formHrefMockedUrl("page1"), "dummy link");
+        AnchorElement anchor = TestUtil.createAnchor("page1", "dummy link");
         div.appendChild(anchor);
 
         // While it may seem strange that both previous and next links are the same, this test is
