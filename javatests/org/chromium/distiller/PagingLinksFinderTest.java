@@ -11,8 +11,6 @@ import com.google.gwt.dom.client.Element;
 import com.google.gwt.user.client.Window;
 
 public class PagingLinksFinderTest extends DomDistillerJsTestCase {
-    // EXAMPLE_URL has to have a file extension, or findBaseUrl() would be
-    // the same as URL, and this would break testFirstPageLinkAsBaseUrl().
     private static String EXAMPLE_URL = "http://example.com/path/toward/news.php";
 
     private static void checkResolveLinkHref(AnchorElement anchor, String original_url, String expected, String href) {
@@ -178,14 +176,11 @@ public class PagingLinksFinderTest extends DomDistillerJsTestCase {
         checkLinks(nextAnchor, prevAnchor, root);
     }
 
-    public void testFirstPageLinkAsBaseUrl() {
-        // Some sites' first page links are the same as the base URL, previous page link needs to
+    public void testFirstPageLinkAsFolderUrl() {
+        // Some sites' first page links are the same as the folder URL, previous page link needs to
         // recognize this.
 
-        // For testcases, Window.Location.getPath() returns a ".html" file that will be stripped
-        // when determining the base URL in PagingLinksFinder.findBaseUrl(), so we need to do the
-        // same to use a href identical to base URL.
-        String href = StringUtil.findAndReplace(EXAMPLE_URL, "\\.[^.]*$", "");
+        String href = StringUtil.findAndReplace(EXAMPLE_URL, "\\/[^/]*$", "");
 
         Element root = TestUtil.createDiv(0);
         mBody.appendChild(root);

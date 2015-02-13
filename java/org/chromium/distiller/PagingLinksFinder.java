@@ -35,8 +35,8 @@ import java.util.Set;
  * for next page links is migrated from readability.getArticleTitle() in chromium codebase's
  * third_party/readability/js/readability.js, and then expanded for previous page links; boilerpipe
  * doesn't have such capability.
- * First, it determines the base URL of the document.  Then, for each anchor in the document, its
- * href and text are compared to the base URL and examined for next- or previous-paging-related
+ * First, it determines the prefix URL of the document.  Then, for each anchor in the document, its
+ * href and text are compared to the prefix URL and examined for next- or previous-paging-related
  * information.  If it passes, its score is then determined by applying various heuristics on its
  * href, text, class name and ID,  Lastly, the page link with the highest score of at least 50 is
  * considered to have enough confidence as the next or previous page link.
@@ -100,7 +100,7 @@ public class PagingLinksFinder {
             mLinkDebugInfo.clear();
         }
 
-        String baseUrl = StringUtil.findAndReplace(original_url, "\\/[^/]*$", "");
+        String folderUrl = StringUtil.findAndReplace(original_url, "\\/[^/]*$", "");
 
         original_url = PagingLinksFinder.getBaseUrlForRelative(root, original_url);
 
@@ -115,7 +115,7 @@ public class PagingLinksFinder {
         // The trailing "/" is essential to ensure the whole hostname is matched, and not just the
         // prefix of the hostname. It also maintains the requirement of having a "path" in the URL.
         String allowedPrefix = getScheme(original_url) + "://" + getHostname(original_url) + "/";
-        RegExp REG_PREFIX_NUM = RegExp.compile("^" + StringUtil.regexEscape(allowedPrefix) + ".*\\d", "i");
+        RegExp regPrefixNum = RegExp.compile("^" + StringUtil.regexEscape(allowedPrefix) + ".*\\d", "i");
 
         // Loop through all links, looking for hints that they may be next- or previous- page links.
         // Things like having "page" in their textContent, className or id, or being a child of a
@@ -130,7 +130,7 @@ public class PagingLinksFinder {
             String linkHref = resolveLinkHref(link, baseAnchor);
 
             if (pageLink == PageLink.NEXT) {
-                if (!REG_PREFIX_NUM.test(linkHref)) {
+                if (!regPrefixNum.test(linkHref)) {
                     appendDbgStrForLink(link, "ignored: not prefix + num");
                     continue;
                 }
@@ -158,14 +158,14 @@ public class PagingLinksFinder {
             appendDbgStrForLink(link, "-> " + linkHref);
 
             // Ignore page link that is the same as current window location.
-            // If the page link is same as the base URL:
+            // If the page link is same as the folder URL:
             // - next page link: ignore it, since we would already have seen it.
             // - previous page link: don't ignore it, since some sites will simply have the same
-            //                       base URL for the first page.
+            //                       folder URL for the first page.
             if (linkHref.equalsIgnoreCase(wndLocationHref)
-                    || (pageLink == PageLink.NEXT && linkHref.equalsIgnoreCase(baseUrl))) {
+                    || (pageLink == PageLink.NEXT && linkHref.equalsIgnoreCase(folderUrl))) {
                 appendDbgStrForLink(
-                        link, "ignored: same as current or base url " + baseUrl);
+                        link, "ignored: same as current or folder url " + folderUrl);
                 continue;
             }
 
@@ -179,21 +179,19 @@ public class PagingLinksFinder {
                 continue;
             }
 
-            // For next page link, if the initial part of the URL is identical to the base URL, but
+            // For next page link, if the initial part of the URL is identical to the folder URL, but
             // the rest of it doesn't contain any digits, it's certainly not a next page link.
             // However, this doesn't apply to previous page link, because most sites will just have
-            // the base URL for the first page.
-            // TODO(kuan): baseUrl (returned by findBaseUrl()) is NOT the prefix of the current
-            // window location, even though it appears to be so the way it's used here.
+            // the folder URL for the first page.
             // TODO(kuan): do we need to apply this heuristic to previous page links if current page
             // number is not 2?
             if (pageLink == PageLink.NEXT) {
                 String linkHrefRemaining = linkHref;
-                if (linkHref.startsWith(baseUrl)) {
-                    linkHrefRemaining = linkHref.substring(baseUrl.length());
+                if (linkHref.startsWith(folderUrl)) {
+                    linkHrefRemaining = linkHref.substring(folderUrl.length());
                 }
                 if (!REG_NUMBER.test(linkHrefRemaining)) {
-                    appendDbgStrForLink(link, "ignored: no number beyond base url " + baseUrl);
+                    appendDbgStrForLink(link, "ignored: no number beyond folder url " + folderUrl);
                     continue;
                 }
             }
@@ -202,15 +200,13 @@ public class PagingLinksFinder {
             linkObj = new PagingLinkObj(i, 0, linkText, linkHref);
             possiblePages.add(linkObj);
 
-            // If the base URL isn't part of this URL, penalize this link.  It could still be the
+            // If the folder URL isn't part of this URL, penalize this link.  It could still be the
             // link, but the odds are lower.
             // Example: http://www.actionscript.org/resources/articles/745/1/JavaScript-and-VBScript-Injection-in-ActionScript-3/Page1.html.
-            // TODO(kuan): again, baseUrl (returned by findBaseUrl()) is NOT the prefix of the
-            // current window location, even though it appears to be so the way it's used here.
-            if (linkHref.indexOf(baseUrl) != 0) {
+            if (linkHref.indexOf(folderUrl) != 0) {
                 linkObj.mScore -= 25;
                 appendDbgStrForLink(link, "score=" + linkObj.mScore +
-                        ": not part of base url " + baseUrl);
+                        ": not part of folder url " + folderUrl);
             }
 
             // Concatenate the link text with class name and id, and determine the score based on
