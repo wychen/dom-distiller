@@ -192,12 +192,16 @@ public class PagingLinksFinderTest extends DomDistillerJsTestCase {
         root.appendChild(nextAnchor);
         // If the same bad URL can get scores accumulated across links,
         // it would wrongly get selected.
-        AnchorElement bad1 = TestUtil.createAnchor("not-page1", "not page");
+        AnchorElement bad1 = TestUtil.createAnchor("not-page1", "not");
         root.appendChild(bad1);
-        AnchorElement bad2 = TestUtil.createAnchor("not-page1", "not page");
+        AnchorElement bad2 = TestUtil.createAnchor("not-page1", "not");
         root.appendChild(bad2);
-        AnchorElement bad3 = TestUtil.createAnchor("not-page1", "not page");
+        AnchorElement bad3 = TestUtil.createAnchor("not-page1", "not");
         root.appendChild(bad3);
+        AnchorElement bad4 = TestUtil.createAnchor("not-page1", "not");
+        root.appendChild(bad4);
+        AnchorElement bad5 = TestUtil.createAnchor("not-page1", "not");
+        root.appendChild(bad5);
 
         checkLinks(nextAnchor, null, root);
     }
