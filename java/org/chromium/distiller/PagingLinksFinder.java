@@ -102,15 +102,13 @@ public class PagingLinksFinder {
 
         String folderUrl = StringUtil.findAndReplace(original_url, "\\/[^/]*$", "");
 
-        original_url = PagingLinksFinder.getBaseUrlForRelative(root, original_url);
-
         // Remove trailing '/' from window location href, because it'll be used to compare with
         // other href's whose trailing '/' are also removed.
         String wndLocationHref = StringUtil.findAndReplace(original_url, "\\/$", "");
         NodeList<Element> allLinks = root.getElementsByTagName("A");
         Set<PagingLinkObj> possiblePages = new HashSet<PagingLinkObj>();
 
-        AnchorElement baseAnchor = createAnchorWithBase(original_url);
+        AnchorElement baseAnchor = createAnchorWithBase(getBaseUrlForRelative(root, original_url));
 
         // The trailing "/" is essential to ensure the whole hostname is matched, and not just the
         // prefix of the hostname. It also maintains the requirement of having a "path" in the URL.
@@ -367,7 +365,7 @@ public class PagingLinksFinder {
         doc.getHead().appendChild(base);
 
         AnchorElement a = doc.createAnchorElement();
-        doc.getBody().appendChild(base);
+        doc.getBody().appendChild(a);
         return a;
     }
 
@@ -405,7 +403,7 @@ public class PagingLinksFinder {
         return StringUtil.findAndReplace(url, "^([^/]*)/", "");
     }
 
-    private static Integer pageDiff(String url, String linkHref, AnchorElement link, int skip) {
+    public static Integer pageDiff(String url, String linkHref, AnchorElement link, int skip) {
         int commonLen = skip;
         int i;
         for (i=skip; i<Math.min(url.length(), linkHref.length()); i++) {
