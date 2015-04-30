@@ -210,5 +210,4 @@ public final class ParsedUrl {
     private ParsedUrl(Url url) {
         mUrl = url;
     }
-
 }

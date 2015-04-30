@@ -14,6 +14,7 @@
 
   apt-get install \
     ant \
+    google-chrome-stable \
     openjdk-7-jdk \
     protobuf-compiler \
     python \
@@ -36,7 +37,7 @@
   mkdir $tmp
   cd $tmp
 
-  wget https://chromedriver.storage.googleapis.com/2.12/$zip
+  wget https://chromedriver.storage.googleapis.com/2.15/$zip
   chmod a+r $zip
   sudo -u $user mkdir -p $tools
   sudo -u $user unzip -o -d $tools $zip

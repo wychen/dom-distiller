@@ -12,6 +12,7 @@ public class ParsedUrlTest extends JsTestCase {
     public void testAllGet() {
         ParsedUrl url = ParsedUrl.create(VALID_URL);
         assertTrue(url != null);
+        assertEquals("[object URL]", url.toString());
         assertEquals("www.foo.com", url.getHost());
         assertEquals("http://www.foo.com", url.getOrigin());
         assertEquals("/path0/path1/;pathParams", url.getPath());
