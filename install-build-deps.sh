@@ -23,9 +23,10 @@
     wget \
     xvfb
 
-  if type google-chrome >/dev/null 2>&1 && google-chrome --version | grep dev; then
+  if type google-chrome >/dev/null 2>&1 && google-chrome --version | grep -q dev; then
     apt-get update
-    apt-get install google-chrome-unstable
+    apt-get remove google-chrome-unstable
+    apt-get install google-chrome-stable
   else
     apt-get update
     apt-get install google-chrome-stable
