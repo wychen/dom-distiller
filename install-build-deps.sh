@@ -12,6 +12,8 @@
     exit 1
   fi
 
+  apt-get update
+
   apt-get install \
     ant \
     google-chrome-stable \
