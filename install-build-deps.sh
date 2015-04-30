@@ -14,7 +14,7 @@
 
   apt-get update
 
-  apt-get install --force-overwrite \
+  apt-get install -y \
     ant \
     google-chrome-stable \
     openjdk-7-jdk \
