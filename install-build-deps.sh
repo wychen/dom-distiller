@@ -12,11 +12,8 @@
     exit 1
   fi
 
-  apt-get update
-
-  apt-get install -y \
+  apt-get install \
     ant \
-    google-chrome-stable \
     openjdk-7-jdk \
     protobuf-compiler \
     python \
@@ -25,6 +22,14 @@
     unzip \
     wget \
     xvfb
+
+  if type google-chrome >/dev/null 2>&1 && google-chrome --version | grep dev; then
+    apt-get update
+    apt-get install google-chrome-unstable
+  else
+    apt-get update
+    apt-get install google-chrome-stable
+  fi
 
   user=$SUDO_USER
   bit=$(getconf LONG_BIT)
