@@ -7,11 +7,11 @@ git log --oneline -n 5
 sudo ./install-build-deps.sh
 sudo start xvfb || true
 
-ls -al ~/.config || true
+ls -al ~/.config/* || true
 
-timeout 10 xvfb-run google-chrome http://google.com
+sudo timeout 10 xvfb-run google-chrome http://google.com || true
 
-ls -al ~/.config || true
+ls -al ~/.config/* || true
 
 for i in 3 4 5 6 7 8 9 10 11 12 13 14 15; do
 
