@@ -24,8 +24,9 @@
     xvfb
 
   apt-get update
-  apt-get remove google-chrome-unstable
-  apt-get install google-chrome-stable
+  apt-get upgrade
+  #apt-get remove google-chrome-unstable
+  #apt-get install google-chrome-stable
 
   user=$SUDO_USER
   bit=$(getconf LONG_BIT)
@@ -44,7 +45,7 @@
   chmod a+r $zip
   sudo -u $user mkdir -p $tools
   sudo -u $user unzip -o -d $tools $zip
-  chmod u+x $tools/chromedriver
+  #chmod u+x $tools/chromedriver
 
   wget https://pypi.python.org/packages/source/s/selenium/$tar
   tar -xf $tar
