@@ -9,8 +9,6 @@ sudo start xvfb || true
 
 sudo ls -al ~/.config/* || true
 
-sudo rm -rf ~/.config
-
 sudo timeout 10 xvfb-run google-chrome http://google.com || true
 
 sudo ls -al ~/.config/* || true
