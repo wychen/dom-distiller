@@ -23,6 +23,9 @@
     wget \
     xvfb
 
+  apt-get update
+  apt-get install google-chrome-unstable
+
   user=$SUDO_USER
   bit=$(getconf LONG_BIT)
   domdistiller=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
