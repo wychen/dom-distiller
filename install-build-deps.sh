@@ -24,7 +24,8 @@
     xvfb
 
   apt-get update
-  apt-get install google-chrome-unstable
+  apt-get remove google-chrome-unstable
+  apt-get install google-chrome-stable
 
   user=$SUDO_USER
   bit=$(getconf LONG_BIT)
