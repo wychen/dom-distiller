@@ -23,9 +23,9 @@
     wget \
     xvfb
 
-  apt-get update
-  apt-get remove google-chrome-unstable
-  apt-get install google-chrome-stable
+  #apt-get update
+  #apt-get remove google-chrome-unstable
+  #apt-get install google-chrome-stable
   #apt-get upgrade
 
   user=$SUDO_USER
@@ -41,7 +41,7 @@
   mkdir $tmp
   cd $tmp
 
-  wget https://chromedriver.storage.googleapis.com/2.15/$zip
+  wget https://chromedriver.storage.googleapis.com/2.11/$zip
   chmod a+r $zip
   sudo -u $user mkdir -p $tools
   sudo -u $user unzip -o -d $tools $zip
