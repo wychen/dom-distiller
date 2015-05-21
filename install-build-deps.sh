@@ -26,12 +26,12 @@
   apt-get update
   apt-get remove google-chrome-unstable
   apt-get install google-chrome-stable
-  apt-get upgrade
+  #apt-get upgrade
 
   user=$SUDO_USER
   bit=$(getconf LONG_BIT)
   domdistiller=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-  pkg=selenium-2.44.0
+  pkg=selenium-2.45.0
   tar=${pkg}.tar.gz
   zip=chromedriver_linux${bit}.zip
   tmp=/tmp/domdistiller-$$
