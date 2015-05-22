@@ -21,7 +21,7 @@ public final class ParsedUrl {
          */
         private static native Url createUrl(String url) /*-{
             try {
-                return new URL(url);
+                return URL ? new URL(url) : new webkitURL(url);
             } catch (e) {
                 return null;
             }
