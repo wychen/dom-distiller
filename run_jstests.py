@@ -52,7 +52,9 @@ def main(argv):
   test_html = os.path.abspath(os.path.join(os.path.dirname(__file__), "war", "test.html"))
   test_html += "?" + urllib.urlencode(params)
 
-  driver = webdriver.Chrome()
+  chrome_options = webdriver.ChromeOptions();
+  chrome_options.add_argument("--start-maximized");
+  driver = webdriver.Chrome(chrome_options=chrome_options)
   driver.get("file://" + test_html)
   for i in range(options.repeat):
     start = time.time()

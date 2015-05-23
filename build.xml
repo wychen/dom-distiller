@@ -230,6 +230,8 @@
     <exec executable="xvfb-run" failonerror="true">
       <env key="PATH" path="${env.PATH}:${basedir}/buildtools"/>
       <arg value="--auto-servernum"/>
+      <arg value="-s"/>
+      <arg value="-screen 0 1024x768x24"/>
       <arg value="./run_jstests.py"/>
       <arg line="--filter=${test.filter}
         --debug_level ${test.debug_level}
