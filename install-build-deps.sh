@@ -14,6 +14,7 @@ CHROME_MIN_VERSION=32
     exit 1
   fi
 
+  apt-get update
   apt-get install \
     ant \
     openjdk-7-jdk \
