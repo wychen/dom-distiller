@@ -34,8 +34,8 @@ CHROME_MIN_VERSION=32
 
   # Update chrome if it is too old, and keep the default channel.
   if ! google-chrome --version | tr " " "\n" | awk '/[0-9.]/{exit ($1<'${CHROME_MIN_VERSION}')}'; then
-    case "$(readlink -f $(which google-chrome))" in
-      *unstable*)
+    case "$(google-chrome --version)" in
+      *dev*)
         apt-get install google-chrome-unstable
         ;;
       *beta*)
