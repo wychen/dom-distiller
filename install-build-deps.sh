@@ -61,7 +61,7 @@ CHROME_MIN_VERSION=32
   mkdir $tmp
   cd $tmp
 
-  wget https://chromedriver.storage.googleapis.com/2.12/$zip
+  wget https://chromedriver.storage.googleapis.com/2.8/$zip
   chmod a+r $zip
   sudo -u $user mkdir -p $tools
   sudo -u $user unzip -o -d $tools $zip
