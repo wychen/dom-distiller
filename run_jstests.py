@@ -33,7 +33,7 @@ def main(argv):
   parser.add_argument('--no_console_log',
       action='store_true', help='Disable the console log output.')
   parser.add_argument('--shuffle', help='Set to 1 to run test cases in random order.')
-  parser.add_argument('--no-sandbox', help='Set to 1 to add --no-sandbox option to Chrome.')
+  parser.add_argument('--no_sandbox', help='Set to 1 to add --no-sandbox option to Chrome.')
   options = parser.parse_args(argv)
 
   params = {}
