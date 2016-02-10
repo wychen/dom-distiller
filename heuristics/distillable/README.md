@@ -57,8 +57,18 @@ all: $(ALL)
         xvfb-run -a -s "-screen 0 1600x5000x24" ./get_screenshots.py --out out_dir --urls-file urls.txt --resume
 ```
 
-And then run `make -j20`. Adjust the parallelism according to how beefy your
-machine is.
+And then run `nice make -j10 -k`. Adjust the parallelism according to how beefy
+your machine is. The `-k` option is essential for it to keep going.
+
+** Tips and caveats: **
+
+-   Use tmpfs for /tmp to avoid thrashing your disk. It would easily be IO-bound
+    even if you use SSD for /tmp.
+-   `atop` is useful when experimenting the parallelism.
+-   For a 40-core, 64G workstation, `-j80` can keep it CPU-bound, with
+    throughput of ~100 entries/minute.
+-   You might need to manually kill a few stray Chrome or xvfb-run processes
+    after hitting `Ctrl-C` for `make`.
 
 A small proportion of URLs would time out, or fail for some other reasons. When
 you've collected enough data, run the command again with option `--write-index`
