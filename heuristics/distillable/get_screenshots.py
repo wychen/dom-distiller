@@ -169,13 +169,17 @@ def writeFeature(outdir):
   #writeAggregated(outdir, "mfeature", "mfeature", in_marshal=True)
   #writeAggregated(outdir, "mdfeature", "mdfeature", in_marshal=True)
 
-def shouldProcess(load_mhtml, prefix):
+def shouldProcess(load_mhtml, no_distill, prefix):
   info = prefix + '.info'
-  mfeature = prefix + '.mdfeature'
+  mfeature = prefix + '.mfeature'
+  mdfeature = prefix + '.mdfeature'
   if not load_mhtml:
     return not os.path.exists(info)
   else:
-    return os.path.exists(info) and not os.path.exists(mfeature)
+    if no_distill:
+      return os.path.exists(info) and not os.path.exists(mfeature)
+    else:
+      return os.path.exists(info) and not os.path.exists(mdfeature)
 
 def main(argv):
   parser = argparse.ArgumentParser()
@@ -188,6 +192,7 @@ def main(argv):
   parser.add_argument('--write-index', action='store_true')
   parser.add_argument('--save-mhtml', action='store_true')
   parser.add_argument('--load-mhtml', action='store_true')
+  parser.add_argument('--skip-distillation', action='store_true')
   parser.add_argument('--desktop-distillable-only', action='store_true')
   options = parser.parse_args(argv)
 
@@ -241,12 +246,12 @@ def main(argv):
       info = '%s.info' % prefix
       basedata = {'index': i, 'url': f}
 
-      if not shouldProcess(options.load_mhtml, prefix):
+      if not shouldProcess(options.load_mhtml, options.skip_distillation, prefix):
         print "skip %d" % (i)
         continue;
 
       with FileLock('%s.lock' % (prefix)):
-        if not shouldProcess(options.load_mhtml, prefix):
+        if not shouldProcess(options.load_mhtml, options.skip_distillation, prefix):
           print "skip %d" % (i)
           continue;
         try:
@@ -293,6 +298,9 @@ def main(argv):
               # Restart the whole xvfb environment to be safe.
               print "[ERROR] Snapshot of [%d] %s (%s) is missing." % (i, f, mhtml)
               break
+
+          if options.skip_distillation:
+            continue
 
           if options.emulate_mobile:
             driver.set_window_size(400, 800)

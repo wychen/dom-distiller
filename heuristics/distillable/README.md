@@ -114,7 +114,7 @@ is useful. After modifying `extract_features.js`, modify the Makefile and change
 the command to:
 
 ```bash
-xvfb-run -a -s "-screen 0 1600x5000x24" ./get_screenshots.py --out out_dir --urls-file urls.txt --load-mhtml
+xvfb-run -a -s "-screen 0 1600x5000x24" ./get_screenshots.py --out out_dir --urls-file urls.txt --load-mhtml --skip-distillation
 ```
 
 Then rerun `nice make -j10 -k`.
@@ -136,7 +136,7 @@ not aggregated by default, but you can uncomment the line in function
 then use `calculate_derived_features.py` to convert it to the derived features.
 
 ```bash
-./calculate_derived_features.py --core out_dir/feature --out  out_dir/feature-derived
+./calculate_derived_features.py --core out_dir/feature --out out_dir/feature-derived
 ```
 
 ### Sanity check
