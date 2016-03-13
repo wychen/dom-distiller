@@ -96,12 +96,45 @@ def saveFeatures(driver, feature_extractor, data, url_override, filename):
     json.dump(data, outf, indent=2, sort_keys=True)
   print "saved %s" % filename
 
-  data['features'] = CalcDerivedFeatures(data['index'], features)
+  derived = dict.copy(data)
+  derived['features'] = CalcDerivedFeatures(data['index'], features)
 
   derived_name = filename + '-derived'
   with open(derived_name, 'w') as outf:
-    json.dump(data, outf, indent=2, sort_keys=True)
+    json.dump(derived, outf, indent=2, sort_keys=True)
   print "saved %s" % derived_name
+  return data, derived
+
+def saveInfoFile(data, ss, dss, filename):
+  data = dict.copy(data)
+  data['screenshot'] = ss
+  data['distilled'] = dss
+  with open(filename, 'w') as info:
+    json.dump(data, info)
+
+def saveMHTML(filename):
+  """Save current page as an MHTML file
+
+  This is done by issuing xdotool commands.
+  Dependencies:
+  - Command line argument "--save-page-as-mhtml" to Chrome.
+  - xdotool
+  """
+
+  cmd = (
+    'xdotool key --clearmodifiers "ctrl+s" && ' +
+    'sleep 1 && ' +
+    'xdotool key --delay 20 --clearmodifier "Alt+n" && ' +
+    'xdotool key --delay 20 --clearmodifiers "ctrl+a" "BackSpace" && ' +
+    'xdotool type --delay 10 --clearmodifiers "%s" && ' +
+    'xdotool key --delay 20 --clearmodifiers Return'
+    ) % (os.path.abspath(filename))
+  os.system(cmd)
+  time.sleep(3) # wait for file saving
+  if not os.path.exists(filename):
+    return False
+  print "saved %s" % filename
+  return True
 
 def writeAggregated(outdir, ext, out, in_marshal=False):
   prevfiles = [os.path.join(outdir, f) for f in os.listdir(outdir)]
@@ -155,6 +188,7 @@ def main(argv):
   parser.add_argument('--write-index', action='store_true')
   parser.add_argument('--save-mhtml', action='store_true')
   parser.add_argument('--load-mhtml', action='store_true')
+  parser.add_argument('--desktop-distillable-only', action='store_true')
   options = parser.parse_args(argv)
 
   if options.load_mhtml:
@@ -242,29 +276,23 @@ def main(argv):
           url_override = None
           if options.load_mhtml:
             with open(fea) as infile:
-              data = json.load(infile)
-            f_ori = data['features']
-            url_override = f_ori['url'] # otherwise it would be file:// of mhtml
+              # otherwise it would be file:// of mhtml
+              url_override = json.load(infile)['features']['url']
             fea = '%s.mfeature' % prefix
-          saveFeatures(driver, feature_extractor, basedata, url_override, fea)
+          _, derived = saveFeatures(driver, feature_extractor, basedata, url_override, fea)
+
+          if options.desktop_distillable_only:
+            if derived['native']['features']['isMobileFriendly'] or not derived['native']['distillable']:
+              os.system('rm %s.feature %s.png' % (prefix, prefix))
+              saveInfoFile(basedata, ss, dss, info)
+              continue
 
           if options.save_mhtml:
-            cmd = (
-              'xdotool key --clearmodifiers "ctrl+s" && ' +
-              'sleep 1 && ' +
-              'xdotool key --delay 20 --clearmodifier "Alt+n" && ' +
-              'xdotool key --delay 20 --clearmodifiers "ctrl+a" "BackSpace" && ' +
-              'xdotool type --delay 10 --clearmodifiers "%s" && ' +
-              'xdotool key --delay 20 --clearmodifiers Return'
-              ) % (os.getcwd() + '/' + mhtml)
-            os.system(cmd)
-            time.sleep(3) # wait for file saving
-            if not os.path.exists(mhtml):
+            if not saveMHTML(mhtml):
               # If the file is not saved, the focus point might be lost.
               # Restart the whole xvfb environment to be safe.
               print "[ERROR] Snapshot of [%d] %s (%s) is missing." % (i, f, mhtml)
               break
-            print "saved %s" % mhtml
 
           if options.emulate_mobile:
             driver.set_window_size(400, 800)
@@ -273,28 +301,25 @@ def main(argv):
 
           if options.load_mhtml:
             driver.get(getDistillerUrl(mhtml_url))
-            time.sleep(3)
+            time.sleep(10)
             dss = '%s-mdistilled.png' % prefix
             driver.save_screenshot(dss)
             print "saved %s" % dss
             dfea = '%s.mdfeature' % prefix
             saveFeatures(driver, feature_extractor, basedata, None, dfea)
+            time.sleep(1000000)
             continue
 
           driver.get(getDistillerUrl(f))
-          time.sleep(20) # wait for multi-page, etc
-          driver.save_screenshot(dss)
-          print "saved %s" % dss
-          saveFeatures(driver, feature_extractor, basedata, None, dfea)
+          for i in range(3):
+            time.sleep(20) # wait for multi-page, etc
+            driver.save_screenshot(dss)
+            print "saved %s" % dss
+            feature, _ = saveFeatures(driver, feature_extractor, basedata, None, dfea)
+            if feature['features']['innerText'] != "":
+              break
 
-          data = {
-            'index': i,
-            'url': f,
-            'screenshot': ss,
-            'distilled': dss,
-          }
-          with open(info, 'w') as info:
-            json.dump(data, info)
+          saveInfoFile(basedata, ss, dss, info)
 
         except Exception as e:
           print e

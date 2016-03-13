@@ -229,6 +229,11 @@ def main(argv):
 
     markedMap = dict()
     for m in marked:
+      feature = m['features']
+      feature = dict(zip(feature[::2], feature[1::2]))
+      if feature['innerTextLength'] == 0:
+        continue
+      m['features'] = feature
       markedMap[m['url'].strip()] = m
 
     print "Loaded %d distilled entries" % (len(markedMap))
@@ -243,22 +248,22 @@ def main(argv):
       if f['native']['distillable'] != 1:
         continue
       feature = markedMap[url]['features']
-      feature = dict(zip(feature[::2], feature[1::2]))
-      merged.append(map(float, [0 if feature['innerTextLength'] < 300 else 1] + f['features'][1::2]))
+      merged.append(map(float, [0 if feature['innerTextLength'] < 1000 else 1] + f['features'][1::2]))
     print "Merged %d entries" % (len(merged))
 
-  header = ['good'] + map(str, features[0]['features'][::2])
+  feature_headers = map(str, features[0]['features'][::2])
+  header = ['good'] + feature_headers
 
   write_features(options.out, header, merged, header)
 
   # write datasets with a single feature
   outbase = os.path.splitext(options.out)[0]
-  for s in header:
+  for s in feature_headers:
     print 'Single feature: %s' % s
     write_features('%s-feature-%s.csv' % (outbase, s), header, merged, ['good', s])
 
   # write datasets with feature groups
-  for (name, g) in getGroups(header).iteritems():
+  for (name, g) in getGroups(feature_headers).iteritems():
     print 'Feature group: %s' % name
     write_features('%s-group-%s.csv' % (outbase, name), header, merged, ['good'] + g)
 

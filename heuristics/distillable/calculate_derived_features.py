@@ -123,7 +123,6 @@ def main(argv):
 
   for entry in core:
     features = entry['features']
-    native = entry['native']
     print 'processing %d' % (entry['index'])
 
     entry['features'] = CalcDerivedFeatures(entry['index'], features)
