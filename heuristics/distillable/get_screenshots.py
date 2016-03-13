@@ -307,7 +307,6 @@ def main(argv):
             print "saved %s" % dss
             dfea = '%s.mdfeature' % prefix
             saveFeatures(driver, feature_extractor, basedata, None, dfea)
-            time.sleep(1000000)
             continue
 
           driver.get(getDistillerUrl(f))
