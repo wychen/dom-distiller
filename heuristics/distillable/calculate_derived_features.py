@@ -94,16 +94,11 @@ def _CalcDerivedFeatures(index, raw, opengraph, url, title, numElements, numAnch
     'textContentWordCountRatio', float(textContentWords) / max(1, innerHTMLWords),
     'innerTexttextContentWordCountRatio', float(innerTextWords) / max(1, textContentWords),
 
-    'textCount', numText,
-    'passwordCount', numPassword,
-    'formCount', numForms,
-    'anchorCount', numAnchors,
-    'elementCount', numElements,
     'anchorRatio', float(numAnchors) / max(1, numElements),
   ]
 
   for k in sorted(raw):
-    if 'mozScore' in k or 'num' in k:
+    if 'mozScore' in k or 'num' in k or 'largest' in k or ('schema' in k and not 'Type' in k) or ('twitter' in k and not 'Type' in k) or 'body' in k:
       features += [k, raw[k]]
 
   return features
