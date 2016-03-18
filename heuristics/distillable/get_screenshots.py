@@ -171,15 +171,16 @@ def writeFeature(outdir):
 
 def shouldProcess(load_mhtml, no_distill, prefix):
   info = prefix + '.info'
+  mhtml = prefix + '.mhtml'
   mfeature = prefix + '.mfeature'
   mdfeature = prefix + '.mdfeature'
   if not load_mhtml:
     return not os.path.exists(info)
   else:
     if no_distill:
-      return os.path.exists(info) and not os.path.exists(mfeature)
+      return os.path.exists(mhtml) and not os.path.exists(mfeature)
     else:
-      return os.path.exists(info) and not os.path.exists(mdfeature)
+      return os.path.exists(mhtml) and not os.path.exists(mdfeature)
 
 def main(argv):
   parser = argparse.ArgumentParser()
