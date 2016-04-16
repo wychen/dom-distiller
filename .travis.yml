@@ -1,0 +1,10 @@
+sudo: required
+dist: trusty
+language: java
+before_install: git log --oneline -n 5
+install:
+  - sudo ./install-build-deps.sh
+script:
+  - export PATH='/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
+  - ant test -Dtest.shuffle=1 -Dtest.repeat=10 -Dtest.no_sandbox=1
+  - ant package
