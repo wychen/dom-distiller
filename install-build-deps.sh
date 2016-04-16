@@ -15,7 +15,7 @@ CHROME_MIN_VERSION=32
   fi
 
   apt-get update
-  apt-get install \
+  apt-get install -y \
     ant \
     openjdk-7-jdk \
     protobuf-compiler \
