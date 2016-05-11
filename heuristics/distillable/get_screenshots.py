@@ -41,6 +41,8 @@ def newDriver(mobile=False):
   #chromeOptions.binary_location = "/usr/bin/google-chrome-unstable";
   chromeOptions.add_argument('--enable-dom-distiller')
   chromeOptions.add_argument('--save-page-as-mhtml')
+  chromeOptions.add_argument('--reader-mode-heuristics=adaboost')
+  chromeOptions.add_argument('--distillability-dev')
   if mobile:
     mobile_emulation = { "deviceName": "Google Nexus 5" }
     chromeOptions.add_experimental_option("mobileEmulation", mobile_emulation)
