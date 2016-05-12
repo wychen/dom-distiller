@@ -4,7 +4,7 @@
 
 We would like to know whether it's useful to run DOM distiller on a page. This
 signal could be used in places like browser UI. Since this test would run on all
-the page navigations, it needs to be cheap to compute. Running DOM distiller and
+the page navigations, it needs to be cheap to compute. Running DOM distiller to
 see if the output is empty would be too slow, and whether DOM distiller returns
 results isn't necessarily equivalent to whether the page should be distilled.
 
@@ -144,8 +144,9 @@ then use `calculate_derived_features.py` to convert it to the derived features.
 This step is optional.
 
 `check_derived_features.py` compares the derived features between JavaScript
-implementation and the native implementation in Chrome. This is only available
-if you turn on distillability JSON dumping in Chrome.
+implementation and the native implementation in Chrome. This only works if your
+Chrome is new enough to support distillability JSON dumping (with command line
+argument --distillability-dev).
 
 ```
 ./check_derived_features.py --features out_dir/feature-derived
@@ -160,8 +161,11 @@ Or if you want to compare the features derived from MHTML archive, do this:
 When comparing the features extracted from the original page, the error rate
 would be higher because the feature extractions by JS and native code are done
 at different events, and the DOM could change dynamically. On the other hand,
-features extracted from MHTML archive should be exactly the same, but we still
-have rare cases when these two implementations mismatch.
+features extracted from MHTML archive should be exactly the same. However, due
+to issues like https://crbug.com/586034, MHTML is not fully offline, and the
+results can be non-deterministic. Sadly there are currently no good way in
+webdriver to force offline behavior. Other than that, mismatches between the two
+implementations should be regarded as bugs.
 
 `check_distilled_mhtml.py` compares the distilled content from the original page
 with the distilled content from the MHTML archive.
