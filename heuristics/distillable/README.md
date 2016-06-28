@@ -145,8 +145,8 @@ This step is optional.
 
 `check_derived_features.py` compares the derived features between JavaScript
 implementation and the native implementation in Chrome. This only works if your
-Chrome is new enough to support distillability JSON dumping (with command line
-argument --distillability-dev).
+Chrome supports distillability JSON dumping (with command line argument
+`--distillability-dev`, after patch https://crrev.com/1972503002/).
 
 ```
 ./check_derived_features.py --features out_dir/feature-derived
