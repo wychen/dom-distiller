@@ -32,13 +32,14 @@ def addBuildtoolsToPath():
     os.environ['PATH'] = buildtoolsPath + ':' + envPath
 
 def getDistillerUrl(u):
-  params = { 'url': u}
+  params = {'url': u}
   return "chrome-distiller://blah/?" + urllib.urlencode(params)
 
 def newDriver(mobile=False):
   chromeOptions = webdriver.ChromeOptions()
   # If you want to use a different version of chrome, specify the full path here.
-  #chromeOptions.binary_location = "/usr/bin/google-chrome-unstable";
+  #chromeOptions.binary_location = "/usr/bin/google-chrome-unstable"
+
   chromeOptions.add_argument('--enable-dom-distiller')
   chromeOptions.add_argument('--save-page-as-mhtml')
   chromeOptions.add_argument('--reader-mode-heuristics=adaboost')
@@ -55,6 +56,23 @@ def newDriver(mobile=False):
   driver.set_script_timeout(60)
   print "created a new chrome driver"
   return driver
+
+def getDistilled(driver, url):
+  driver.get(getDistillerUrl(url))
+  for _ in range(60):
+    time.sleep(1)
+    ind = driver.find_element_by_id('loadingIndicator')
+    if ind.get_attribute('class') == 'hidden':
+      break
+
+def setWindowSize(driver, width, height):
+  for _ in range(5):
+    driver.set_window_size(width, height)
+    size = driver.get_window_size()
+    if size['width'] == width and size['height'] == height:
+      return
+    time.sleep(0.1)
+  assert False
 
 def nativeFeatures(logs):
   return _parseNative(logs, 'distillability_features = ')
@@ -78,7 +96,14 @@ def _parseNative(logs, needle):
     message = log['message']
     loc = message.find(needle)
     if loc >= 0:
-      ret = json.loads(message[loc+len(needle):])
+      msg = message[loc+len(needle):]
+      try:
+        ret = json.loads(msg)
+      except:
+        print 'Error parsing JSON:'
+        print msg
+        print
+        pass
   return ret
 
 def saveFeatures(driver, feature_extractor, data, url_override, filename):
@@ -145,8 +170,11 @@ def writeAggregated(outdir, ext, out, in_marshal=False):
   print 'reading %s files' % (ext)
   for f in prevfiles:
     with open(f) as infofile:
-      info = json.load(infofile)
-      output.append(info)
+      try:
+        info = json.load(infofile)
+        output.append(info)
+      except:
+        pass
   print 'done reading %s files' % (ext)
 
   output = sorted(output, key=lambda k: k['index'])
@@ -266,9 +294,9 @@ def main(argv):
           mhtml_url = 'file://%s' % os.path.abspath(mhtml)
 
           if options.emulate_mobile:
-            driver.set_window_size(400, 800)
+            setWindowSize(driver, 400, 800)
           else:
-            driver.set_window_size(1280, 5000)
+            setWindowSize(driver, 1280, 5000)
           if options.load_mhtml:
             if not os.path.exists(mhtml):
               print "SKIP %d, no mhtml" % (i)
@@ -278,6 +306,10 @@ def main(argv):
           else:
             driver.get(f)
             time.sleep(3) # wait for some async scripts
+            if options.emulate_mobile:
+              setWindowSize(driver, 400, 800)
+            else:
+              setWindowSize(driver, 1280, 5000)
             driver.save_screenshot(ss)
             print "saved %s" % ss
 
@@ -306,13 +338,12 @@ def main(argv):
             continue
 
           if options.emulate_mobile:
-            driver.set_window_size(400, 800)
+            setWindowSize(driver, 400, 800)
           else:
-            driver.set_window_size(640, 5000)
+            setWindowSize(driver, 640, 5000)
 
           if options.load_mhtml:
-            driver.get(getDistillerUrl(mhtml_url))
-            time.sleep(10)
+            getDistilled(driver, mhtml_url)
             dss = '%s-mdistilled.png' % prefix
             driver.save_screenshot(dss)
             print "saved %s" % dss
@@ -320,14 +351,14 @@ def main(argv):
             saveFeatures(driver, feature_extractor, basedata, None, dfea)
             continue
 
-          driver.get(getDistillerUrl(f))
-          for i in range(3):
-            time.sleep(20) # wait for multi-page, etc
-            driver.save_screenshot(dss)
-            print "saved %s" % dss
-            feature, _ = saveFeatures(driver, feature_extractor, basedata, None, dfea)
-            if feature['features']['innerText'] != "":
-              break
+          getDistilled(driver, f)
+          if options.emulate_mobile:
+            setWindowSize(driver, 400, 800)
+          else:
+            setWindowSize(driver, 640, 5000)
+          driver.save_screenshot(dss)
+          print "saved %s" % dss
+          saveFeatures(driver, feature_extractor, basedata, None, dfea)
 
           saveInfoFile(basedata, ss, dss, info)
 
