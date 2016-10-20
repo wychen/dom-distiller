@@ -5,7 +5,7 @@
 
 # Installs required build dependencies (to buildtools/ and the local system).
 
-CHROME_MIN_VERSION=49
+CHROME_MIN_VERSION=${CHROME_MIN_VERSION:-49}
 
 (
   set -e
@@ -35,7 +35,7 @@ CHROME_MIN_VERSION=49
   fi
 
   # Update chrome if it is too old, and keep the default channel.
-  if ! google-chrome --version | tr " " "\n" | awk '/[0-9.]/{exit ($1<'${CHROME_MIN_VERSION}')}'; then
+  if ! google-chrome --version | tr " " "\n" | awk '/[0-9.]/{exit ($1+0<'${CHROME_MIN_VERSION}')}'; then
     case "$(google-chrome --version)" in
       *dev*)
         apt-get install google-chrome-unstable
