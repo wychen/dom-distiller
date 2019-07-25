@@ -8,6 +8,7 @@ language: java
 before_install: git log --oneline -n 5
 
 install:
+  - google-chrome --version
   - sudo ./install-build-deps.sh
   # Fix the Java environment in Travis CI. Ubuntu 18.04 uses JDK 11 and cannot downgrade to 8.
   - unset JAVA_HOME
