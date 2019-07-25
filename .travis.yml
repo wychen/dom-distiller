@@ -11,15 +11,15 @@ install:
   - sudo ./install-build-deps.sh
   # Fix the Java environment in Travis CI. Ubuntu 18.04 uses JDK 11 and cannot downgrade to 8.
   - unset JAVA_HOME
-  - which java
-  - java -Xmx32m -version
-  - javac -J-Xmx32m -version
-  - google-chrome --version
 
 script:
   # Use system python for protobuf package.
   - export PATH='/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
   - hooks/pre-commit
+  - which java
+  - java -Xmx32m -version
+  - javac -J-Xmx32m -version
+  - google-chrome --version
   - ant test -Dtest.shuffle=1 -Dtest.repeat=10
   - ant package
 
