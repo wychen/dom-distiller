@@ -30,9 +30,6 @@
 
   # Specify JDK version in case there are other versions installed.
   update-alternatives --set java $(sudo update-alternatives --list java | grep java-8)
-  which java
-  java -Xmx32m -version
-  javac -J-Xmx32m -version
 
   if ! command -v google-chrome >/dev/null 2>&1; then
     wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
