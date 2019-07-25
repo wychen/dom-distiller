@@ -66,6 +66,7 @@
   cd $tmp
 
   # The version scheme changed after 2.46. See http://chromedriver.chromium.org/downloads/version-selection
+  CHROME_VERSION=$(google-chrome --version | tr " " "\n" | awk '/[0-9.]/{print ($1+0)}')
   VERSION=$(wget -q --output-document - https://chromedriver.storage.googleapis.com/LATEST_RELEASE_${CHROME_VERSION} | cat)
   [ -z "${VERSION}" ] && VERSION=2.24
   wget https://chromedriver.storage.googleapis.com/${VERSION}/$zip
