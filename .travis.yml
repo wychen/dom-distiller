@@ -6,7 +6,7 @@ language: java
 before_install: git log --oneline -n 5
 install:
   - sudo ./install-build-deps.sh
-  - export JAVA_HOME=~/openjdk8
+  - unset JAVA_HOME
 script:
   # Use system python for protobuf package.
   - export PATH='/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
