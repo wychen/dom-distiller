@@ -24,6 +24,9 @@ script:
   - ant test -Dtest.shuffle=1 -Dtest.repeat=10
   - ant package
 
+# Each item under env is a testing environment.
 env:
+  # Use stock version of Chrome
   - CHROME_MIN_VERSION=49
+  # Update to latest Chrome
   - CHROME_MIN_VERSION=99
