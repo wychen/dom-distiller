@@ -56,14 +56,6 @@ def main(argv):
 
   chrome_options = webdriver.ChromeOptions()
 
-  # Travis-CI uses OpenVZ containers which are incompatible with the sandbox technology.
-  # See https://code.google.com/p/chromium/issues/detail?id=31077 for more information.
-  # Ref: https://github.com/travis-ci/travis-ci/issues/938#issuecomment-16336150
-  # Drone.io also has issues running newer versions of Chrome.
-  # Ref: http://crbug.com/495254
-  if options.no_sandbox:
-    chrome_options.add_argument("--no-sandbox")
-
   driver = webdriver.Chrome(chrome_options=chrome_options)
   for i in range(options.repeat):
     driver.get("file://" + test_html)
